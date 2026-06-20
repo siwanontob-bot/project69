@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบติดตามแผนงานโครงการสำหรับผู้บริหาร | โรงเรียนครุศาสตร์</title>
+    <!-- Google Fonts: Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Style Sheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar or Header -->
+        <header class="dashboard-header">
+            <div class="header-logo-title">
+                <div class="logo-container">
+                    <img src="https://eoa2.kpru.ac.th/eOfficeA1/img/kpru.png" alt="โลโก้ มรภ.กำแพงเพชร" class="logo-image">
+                </div>
+                <div class="title-container">
+                    <h1>ระบบติดตามแผนงานโครงการสำหรับผู้บริหาร</h1>
+                    <p class="subtitle">โรงเรียนครุศาสตร์ มหาวิทยาลัยราชภัฏกำแพงเพชร</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="last-updated-container">
+                    <i data-lucide="clock" class="icon-small"></i>
+                    <span id="last-updated">กำลังโหลดข้อมูล...</span>
+                </div>
+                <button id="btn-refresh" class="btn-primary">
+                    <i data-lucide="rotate-cw" id="refresh-icon"></i>
+                    <span>อัปเดตข้อมูล</span>
+                </button>
+                <div class="profile-container">
+                    <img src="unnamed.jpg" alt="ผู้บริหารโรงเรียนครุศาสตร์" class="profile-avatar">
+                    <div class="profile-details">
+                        <span class="profile-name">ผู้บริหาร</span>
+                        <span class="profile-role">ครุศาสตร์ KPRU</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Content -->
+        <main class="dashboard-main">
+            <!-- KPI Summary Cards -->
+            <section class="kpi-grid">
+                <!-- Card 1: Total Projects -->
+                <div class="kpi-card" id="kpi-total-projects">
+                    <div class="kpi-header">
+                        <span class="kpi-title">โครงการทั้งหมด</span>
+                        <div class="kpi-icon-container bg-blue">
+                            <i data-lucide="folder-kanban" class="kpi-icon"></i>
+                        </div>
+                    </div>
+                    <div class="kpi-value" id="val-total-projects">-</div>
+                    <div class="kpi-footer text-blue">
+                        <span>โครงการในระบบ</span>
+                    </div>
+                </div>
+
+                <!-- Card 2: Total Budget -->
+                <div class="kpi-card" id="kpi-total-budget">
+                    <div class="kpi-header">
+                        <span class="kpi-title">งบประมาณทั้งหมด</span>
+                        <div class="kpi-icon-container bg-purple">
+                            <i data-lucide="wallet" class="kpi-icon"></i>
+                        </div>
+                    </div>
+                    <div class="kpi-value" id="val-total-budget">-</div>
+                    <div class="kpi-footer text-purple">
+                        <span>งบประมาณที่ได้รับจัดสรร</span>
+                    </div>
+                </div>
+
+                <!-- Card 3: Spent Budget -->
+                <div class="kpi-card" id="kpi-total-spent">
+                    <div class="kpi-header">
+                        <span class="kpi-title">เบิกจ่ายแล้ว</span>
+                        <div class="kpi-icon-container bg-emerald">
+                            <i data-lucide="circle-dollar-sign" class="kpi-icon"></i>
+                        </div>
+                    </div>
+                    <div class="kpi-value" id="val-total-spent">-</div>
+                    <div class="kpi-footer text-emerald">
+                        <span id="val-spent-percent">-% ของงบประมาณ</span>
+                    </div>
+                </div>
+
+                <!-- Card 4: Remaining Budget -->
+                <div class="kpi-card" id="kpi-total-remaining">
+                    <div class="kpi-header">
+                        <span class="kpi-title">คงเหลือ</span>
+                        <div class="kpi-icon-container bg-orange">
+                            <i data-lucide="coins" class="kpi-icon"></i>
+                        </div>
+                    </div>
+                    <div class="kpi-value" id="val-total-remaining">-</div>
+                    <div class="kpi-footer text-orange">
+                        <span id="val-remaining-percent">-% คงเหลือ</span>
+                    </div>
+                </div>
+
+                <!-- Card 5: Avg Progress -->
+                <div class="kpi-card" id="kpi-avg-progress">
+                    <div class="kpi-header">
+                        <span class="kpi-title">ความคืบหน้าภาพรวม</span>
+                        <div class="kpi-icon-container bg-teal">
+                            <i data-lucide="trending-up" class="kpi-icon"></i>
+                        </div>
+                    </div>
+                    <div class="kpi-value" id="val-avg-progress">-%</div>
+                    <div class="kpi-footer">
+                        <div class="kpi-progress-bar-container">
+                            <div class="kpi-progress-bar-fill" id="val-progress-bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-grid">
+                <!-- Status Distribution Chart -->
+                <div class="chart-card glass-panel">
+                    <div class="chart-header">
+                        <h2>สถานะโครงการ</h2>
+                        <span class="chart-desc">สัดส่วนโครงการแยกตามสถานะการดำเนินการ</span>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="chart-status"></canvas>
+                    </div>
+                </div>
+
+                <!-- Budget by Workgroup Chart -->
+                <div class="chart-card glass-panel">
+                    <div class="chart-header">
+                        <h2>เปรียบเทียบงบประมาณตามกลุ่มงาน</h2>
+                        <span class="chart-desc">งบประมาณตั้งไว้ เปรียบเทียบกับ งบประมาณที่ใช้จริง</span>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="chart-budget-workgroup"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Table Section -->
+            <section class="data-table-section glass-panel">
+                <div class="table-actions-header">
+                    <div class="table-title-area">
+                        <h2>รายละเอียดแผนงานโครงการ</h2>
+                        <p class="table-desc">แสดงรายการโครงการทั้งหมด สามารถกรอง ค้นหา และดูรายละเอียดงบประมาณได้</p>
+                    </div>
+                    
+                    <div class="filter-controls">
+                        <!-- Search Box -->
+                        <div class="search-box-wrapper">
+                            <i data-lucide="search" class="search-icon"></i>
+                            <input type="text" id="search-input" placeholder="ค้นหาชื่อโครงการ หรือผู้รับผิดชอบ...">
+                        </div>
+                        
+                        <!-- Filter Group -->
+                        <div class="select-wrapper">
+                            <i data-lucide="filter" class="select-icon"></i>
+                            <select id="filter-workgroup">
+                                <option value="all">ทุกกลุ่มงาน</option>
+                            </select>
+                        </div>
+
+                        <!-- Filter Status -->
+                        <div class="select-wrapper">
+                            <i data-lucide="activity" class="select-icon"></i>
+                            <select id="filter-status">
+                                <option value="all">ทุกสถานะ</option>
+                                <option value="ยังไม่ดำเนินการ">ยังไม่ดำเนินการ</option>
+                                <option value="อยู่ระหว่างดำเนินการ">อยู่ระหว่างดำเนินการ</option>
+                                <option value="ดำเนินการแล้ว">ดำเนินการแล้ว</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Wrapper -->
+                <div class="table-responsive-container">
+                    <table class="project-table">
+                        <thead>
+                            <tr>
+                                <th class="col-id">รหัส</th>
+                                <th class="col-name">ชื่อโครงการ</th>
+                                <th class="col-owner">ผู้รับผิดชอบ</th>
+                                <th class="col-group">กลุ่มงาน</th>
+                                <th class="col-budget text-right">งบประมาณ</th>
+                                <th class="col-spent text-right">ใช้ไปแล้ว</th>
+                                <th class="col-remain text-right">คงเหลือ</th>
+                                <th class="col-progress">ความคืบหน้า</th>
+                                <th class="col-status">สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="project-table-body">
+                            <tr>
+                                <td colspan="9" class="td-loading">
+                                    <div class="loader-container">
+                                        <div class="spinner"></div>
+                                        <span>กำลังดึงข้อมูลโครงการล่าสุดจาก Google Sheet...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Table Footer Info -->
+                <div class="table-footer-info">
+                    <span id="filtered-count-text">แสดงทั้งหมด - รายการ</span>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- App Script -->
+    <script src="app.js"></script>
+</body>
+</html>
