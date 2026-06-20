@@ -219,6 +219,90 @@
                     <span id="filtered-count-text">แสดงทั้งหมด - รายการ</span>
                 </div>
             </section>
+
+            <!-- Procurement Documents Section -->
+            <section class="documents-section">
+                <div class="documents-grid">
+                    <!-- Upload Form Card -->
+                    <div class="document-card glass-panel form-card">
+                        <div class="card-header">
+                            <h2><i data-lucide="file-up" class="header-icon-inline"></i> อัปโหลดเอกสารจัดซื้อจัดจ้าง</h2>
+                            <p class="card-desc">เพิ่มเอกสารแนบโครงการเพื่อติดตามผลการจัดหาพัสดุ</p>
+                        </div>
+                        <form id="upload-doc-form" class="upload-form">
+                            <!-- File Input -->
+                            <div class="form-group">
+                                <label for="doc-file">เลือกไฟล์เอกสาร (PDF, Word, Excel, Image)</label>
+                                <div class="file-drop-zone" id="file-drop-zone">
+                                    <i data-lucide="upload-cloud" class="upload-cloud-icon"></i>
+                                    <span id="file-name-display">ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</span>
+                                    <input type="file" id="doc-file" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" style="display: none;">
+                                </div>
+                                <span class="file-size-limit">* จำกัดขนาดไฟล์สูงสุดไม่เกิน 1.5 MB</span>
+                            </div>
+
+                            <!-- Related Project Selection -->
+                            <div class="form-group">
+                                <label for="doc-project">โครงการที่เกี่ยวข้อง</label>
+                                <div class="select-wrapper select-full">
+                                    <i data-lucide="folder-kanban" class="select-icon"></i>
+                                    <select id="doc-project" required>
+                                        <option value="" disabled selected>เลือกโครงการ...</option>
+                                        <!-- Will be populated dynamically -->
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Document Type Selection -->
+                            <div class="form-group">
+                                <label for="doc-type">ประเภทเอกสาร</label>
+                                <div class="select-wrapper select-full">
+                                    <i data-lucide="file-text" class="select-icon"></i>
+                                    <select id="doc-type" required>
+                                        <option value="" disabled selected>เลือกประเภท...</option>
+                                        <option value="TOR / ข้อกำหนด">TOR / ข้อกำหนด</option>
+                                        <option value="ใบเสนอราคา">ใบเสนอราคา (Quotation)</option>
+                                        <option value="สัญญาจ้าง">สัญญาจ้าง (Contract)</option>
+                                        <option value="เอกสารส่งมอบ">เอกสารส่งมอบ (Delivery Note)</option>
+                                        <option value="อื่นๆ">อื่นๆ</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button type="submit" id="btn-upload-doc" class="btn-primary btn-full">
+                                <i data-lucide="plus-circle"></i>
+                                <span>อัปเดตเอกสารเข้าระบบ</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Documents List Card -->
+                    <div class="document-card glass-panel list-card">
+                        <div class="card-header">
+                            <h2><i data-lucide="files" class="header-icon-inline"></i> คลังเอกสารจัดซื้อจัดจ้าง</h2>
+                            <p class="card-desc">รายการเอกสารจัดซื้อจัดจ้างทั้งหมด สามารถดาวน์โหลดไปใช้งานหรือตรวจสอบได้</p>
+                        </div>
+                        
+                        <div class="table-responsive-container compact-table-container">
+                            <table class="project-table document-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-doc-name">ชื่อเอกสาร</th>
+                                        <th class="col-doc-project">โครงการที่เกี่ยวข้อง</th>
+                                        <th class="col-doc-type">ประเภท</th>
+                                        <th class="col-doc-date">วันที่อัปโหลด</th>
+                                        <th class="col-doc-size text-right">ขนาด</th>
+                                        <th class="col-doc-actions text-center">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="document-table-body">
+                                    <!-- Will be populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 

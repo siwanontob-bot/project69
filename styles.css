@@ -847,3 +847,219 @@ body::after {
         justify-content: flex-end;
     }
 }
+
+/* Procurement Documents Section CSS */
+.documents-section {
+    margin-top: 0.5rem;
+}
+
+.documents-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.document-card {
+    min-height: 480px;
+    display: flex;
+    flex-direction: column;
+}
+
+.document-card.form-card {
+    min-height: auto;
+}
+
+.card-header {
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+}
+
+.card-header h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header-icon-inline {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--accent-purple);
+}
+
+.card-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-top: 0.2rem;
+}
+
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Drag and Drop Upload Zone */
+.file-drop-zone {
+    border: 2px dashed rgba(147, 51, 234, 0.2);
+    background: rgba(147, 51, 234, 0.02);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    transition: all var(--transition-fast);
+}
+
+.file-drop-zone:hover, .file-drop-zone.dragover {
+    border-color: var(--accent-pink);
+    background: rgba(219, 39, 119, 0.04);
+}
+
+.upload-cloud-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    color: var(--accent-purple);
+    transition: transform var(--transition-fast);
+}
+
+.file-drop-zone:hover .upload-cloud-icon {
+    transform: translateY(-4px);
+    color: var(--accent-pink);
+}
+
+#file-name-display {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    word-break: break-all;
+    max-width: 100%;
+}
+
+.file-size-limit {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.select-wrapper.select-full {
+    width: 100%;
+}
+
+.select-wrapper.select-full select {
+    width: 100%;
+}
+
+.btn-full {
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.5rem;
+}
+
+/* Compact Table Styling */
+.compact-table-container {
+    flex-grow: 1;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.document-table th {
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+}
+
+.document-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+}
+
+/* Table columns for Document Table */
+.col-doc-name { width: 35%; font-weight: 600; word-break: break-all; }
+.col-doc-project { width: 30%; }
+.col-doc-type { width: 12%; }
+.col-doc-date { width: 10%; text-align: center; }
+.col-doc-size { width: 8%; text-align: right; }
+.col-doc-actions { width: 5%; text-align: center; }
+
+/* Icon buttons inside table */
+.actions-cell-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-icon-only {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    outline: none;
+}
+
+.btn-icon-only i {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Pink Download Button */
+.btn-pink {
+    background: rgba(219, 39, 119, 0.06);
+    color: var(--accent-pink);
+    border-color: rgba(219, 39, 119, 0.1);
+}
+
+.btn-pink:hover {
+    background: var(--accent-pink);
+    color: white;
+    box-shadow: 0 4px 10px rgba(219, 39, 119, 0.25);
+    transform: translateY(-1px);
+}
+
+/* Orange Delete Button */
+.btn-orange {
+    background: rgba(180, 83, 9, 0.06);
+    color: var(--accent-gold);
+    border-color: rgba(180, 83, 9, 0.1);
+}
+
+.btn-orange:hover {
+    background: #dc2626; /* Red on delete hover */
+    color: white;
+    border-color: #dc2626;
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.25);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 1024px) {
+    .documents-grid {
+        grid-template-columns: 1fr;
+    }
+}
+

@@ -35,6 +35,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial fetch
     fetchDashboardData();
 
+    // Initialize document management system
+    initDocumentSystem();
+
     // Event listeners
     btnRefresh.addEventListener('click', fetchDashboardData);
     searchInput.addEventListener('input', applyFilters);
@@ -134,6 +137,7 @@ function fetchDashboardData() {
             
             // Populate filter and apply
             populateWorkgroupFilter();
+            populateProjectDropdown();
             applyFilters();
             
             // Update timestamp
@@ -586,4 +590,307 @@ function renderTable() {
 
     // Re-initialize Lucide icons in table
     lucide.createIcons();
+}
+
+// ==========================================
+// Procurement Document Management System
+// ==========================================
+
+const LOCAL_STORAGE_DOCS_KEY = 'kpru_procurement_docs';
+
+const DEFAULT_DOCUMENTS = [
+    {
+        id: 'default_1',
+        name: 'TOR_อบรมเชิงปฏิบัติการสร้างสื่อดิจิทัล.pdf',
+        type: 'TOR / ข้อกำหนด',
+        projectId: '1',
+        projectName: 'อบรมเชิงปฏิบัติการสร้างสื่อดิจิทัล',
+        date: '20/06/2026',
+        size: '245 KB',
+        isDefault: true
+    },
+    {
+        id: 'default_2',
+        name: 'ใบเสนอราคา_พัฒนาทักษะAI.pdf',
+        type: 'ใบเสนอราคา',
+        projectId: '2',
+        projectName: 'พัฒนาทักษะการเรียนรู้ด้วย AI',
+        date: '20/06/2026',
+        size: '188 KB',
+        isDefault: true
+    }
+];
+
+let documentData = [];
+
+// Initialize Document System
+function initDocumentSystem() {
+    loadDocuments();
+    setupDocumentEvents();
+    renderDocumentsTable();
+}
+
+// Load documents from LocalStorage or use default
+function loadDocuments() {
+    const stored = localStorage.getItem(LOCAL_STORAGE_DOCS_KEY);
+    if (stored) {
+        try {
+            documentData = JSON.parse(stored);
+        } catch (e) {
+            console.error('Error parsing stored documents, resetting to default', e);
+            documentData = [...DEFAULT_DOCUMENTS];
+            saveDocumentsToLocalStorage();
+        }
+    } else {
+        documentData = [...DEFAULT_DOCUMENTS];
+        saveDocumentsToLocalStorage();
+    }
+}
+
+// Save documents list to LocalStorage
+function saveDocumentsToLocalStorage() {
+    localStorage.setItem(LOCAL_STORAGE_DOCS_KEY, JSON.stringify(documentData));
+}
+
+// Populate the related projects dropdown dynamically
+function populateProjectDropdown() {
+    const docProjectSelect = document.getElementById('doc-project');
+    if (!docProjectSelect) return;
+    
+    docProjectSelect.innerHTML = '<option value="" disabled selected>เลือกโครงการ...</option>';
+    
+    projectData.forEach(p => {
+        const option = document.createElement('option');
+        option.value = p.id;
+        option.textContent = `[รหัส ${p.id}] ${p.name}`;
+        // Store project name as attribute for easy retrieval
+        option.setAttribute('data-name', p.name);
+        docProjectSelect.appendChild(option);
+    });
+}
+
+// Format file bytes into readable size
+function formatBytes(bytes, decimals = 1) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+// Setup Event Listeners for File Upload and Drag/Drop
+function setupDocumentEvents() {
+    const fileInput = document.getElementById('doc-file');
+    const fileDropZone = document.getElementById('file-drop-zone');
+    const fileNameDisplay = document.getElementById('file-name-display');
+    const uploadForm = document.getElementById('upload-doc-form');
+
+    if (!fileInput || !fileDropZone || !uploadForm) return;
+
+    // Trigger file selection on click
+    fileDropZone.addEventListener('click', () => fileInput.click());
+
+    // Drag and drop events
+    ['dragenter', 'dragover'].forEach(eventName => {
+        fileDropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            fileDropZone.classList.add('dragover');
+        }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        fileDropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            fileDropZone.classList.remove('dragover');
+        }, false);
+    });
+
+    fileDropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            handleFileSelect(files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleFileSelect(e.target.files[0]);
+        }
+    });
+
+    function handleFileSelect(file) {
+        // Size limit check: 1.5MB = 1.5 * 1024 * 1024 bytes
+        const sizeLimit = 1.5 * 1024 * 1024;
+        if (file.size > sizeLimit) {
+            showToast('ขนาดไฟล์เกิน 1.5 MB ไม่สามารถบันทึกใน LocalStorage ได้', 'error');
+            fileInput.value = '';
+            fileNameDisplay.textContent = 'ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์';
+            return;
+        }
+        fileNameDisplay.textContent = `${file.name} (${formatBytes(file.size)})`;
+    }
+
+    // Form Submit Event
+    uploadForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const file = fileInput.files[0];
+        const docProjectSelect = document.getElementById('doc-project');
+        const docTypeSelect = document.getElementById('doc-type');
+
+        if (!file) {
+            showToast('โปรดเลือกไฟล์ก่อนทำการอัปโหลด', 'error');
+            return;
+        }
+
+        const selectedOption = docProjectSelect.options[docProjectSelect.selectedIndex];
+        const projectId = docProjectSelect.value;
+        const projectName = selectedOption.getAttribute('data-name') || '';
+        const docType = docTypeSelect.value;
+
+        // Read file as Base64 Data URL
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const base64Data = evt.target.result;
+            
+            const newDoc = {
+                id: 'doc_' + Date.now(),
+                name: file.name,
+                type: docType,
+                projectId: projectId,
+                projectName: projectName,
+                date: new Date().toLocaleDateString('th-TH'),
+                size: formatBytes(file.size),
+                data: base64Data,
+                isDefault: false
+            };
+
+            documentData.unshift(newDoc); // Add to top
+            saveDocumentsToLocalStorage();
+            renderDocumentsTable();
+            showToast('อัปโหลดเอกสารจัดซื้อจัดจ้างสำเร็จ', 'success');
+
+            // Reset form
+            uploadForm.reset();
+            fileNameDisplay.textContent = 'ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์';
+        };
+
+        reader.onerror = function() {
+            showToast('เกิดข้อผิดพลาดในการอ่านไฟล์', 'error');
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
+// Render the documents table UI
+function renderDocumentsTable() {
+    const docTableBody = document.getElementById('document-table-body');
+    if (!docTableBody) return;
+
+    docTableBody.innerHTML = '';
+
+    if (documentData.length === 0) {
+        docTableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="td-empty">
+                    <div class="empty-container">
+                        <i data-lucide="file-warning" class="empty-icon"></i>
+                        <span>ไม่มีเอกสารจัดซื้อจัดจ้างในระบบ</span>
+                    </div>
+                </td>
+            </tr>
+        `;
+        lucide.createIcons();
+        return;
+    }
+
+    documentData.forEach(doc => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="col-doc-name">${doc.name}</td>
+            <td class="col-doc-project">[รหัส ${doc.projectId}] ${doc.projectName}</td>
+            <td class="col-doc-type">${doc.type}</td>
+            <td class="col-doc-date text-center">${doc.date}</td>
+            <td class="col-doc-size text-right">${doc.size}</td>
+            <td class="col-doc-actions text-center">
+                <div class="actions-cell-wrapper">
+                    <button class="btn-icon-only btn-pink btn-download" data-id="${doc.id}" title="ดาวน์โหลดเอกสาร">
+                        <i data-lucide="download"></i>
+                    </button>
+                    <button class="btn-icon-only btn-orange btn-delete" data-id="${doc.id}" title="ลบเอกสาร">
+                        <i data-lucide="trash-2"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+
+        // Event listeners for action buttons
+        tr.querySelector('.btn-download').addEventListener('click', () => handleDownload(doc));
+        tr.querySelector('.btn-delete').addEventListener('click', () => handleDelete(doc));
+
+        docTableBody.appendChild(tr);
+    });
+
+    lucide.createIcons();
+}
+
+// Handle Document Download
+function handleDownload(doc) {
+    if (doc.isDefault) {
+        // Generate mock file content
+        const mockContent = `==================================================
+เอกสารจัดซื้อจัดจ้าง โรงเรียนครุศาสตร์ มรภ.กำแพงเพชร
+==================================================
+ประเภทเอกสาร: ${doc.type}
+วันที่อัปโหลดเข้าระบบ: ${doc.date}
+ขนาดจำลอง: ${doc.size}
+โครงการที่เกี่ยวข้อง: [รหัส ${doc.projectId}] ${doc.projectName}
+ชื่อไฟล์ระบบ: ${doc.name}
+--------------------------------------------------
+เอกสารฉบับนี้เป็นข้อมูลจำลอง (Mock Document) เพื่อทดสอบ
+การนำขึ้นระบบจัดซื้อจัดจ้างของส่วนบริหารโรงเรียนครุศาสตร์
+มหาวิทยาลัยราชภัฏกำแพงเพชร
+
+ขอรับรองความถูกต้องของระบบการตรวจสอบเอกสาร
+==================================================`;
+        const blob = new Blob([mockContent], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        // Download as text file to represent the mock
+        a.download = doc.name.endsWith('.pdf') ? doc.name.replace('.pdf', '.txt') : doc.name + '.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('ดาวน์โหลดเอกสารตัวอย่างสำเร็จ', 'success');
+    } else {
+        // Download user uploaded base64 data
+        try {
+            const a = document.createElement('a');
+            a.href = doc.data;
+            a.download = doc.name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast(`ดาวน์โหลด ${doc.name} สำเร็จ`, 'success');
+        } catch (e) {
+            console.error('Error downloading file', e);
+            showToast('เกิดข้อผิดพลาดในการดาวน์โหลดไฟล์', 'error');
+        }
+    }
+}
+
+// Handle Document Delete
+function handleDelete(doc) {
+    if (confirm(`คุณต้องการลบเอกสาร "${doc.name}" ใช่หรือไม่?`)) {
+        documentData = documentData.filter(d => d.id !== doc.id);
+        saveDocumentsToLocalStorage();
+        renderDocumentsTable();
+        showToast(`ลบเอกสาร "${doc.name}" เรียบร้อยแล้ว`, 'success');
+    }
 }
